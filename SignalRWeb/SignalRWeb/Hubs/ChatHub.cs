@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -7,7 +8,21 @@ namespace SignalRWeb.Hubs
 {
     public class ChatHub : Hub
     {
-        public async Task Send(string message)
+
+        public async Task Send(User user)
+        {
+            user.Age += 5;
+            await Clients.Caller.SendAsync("Receive", user);
+        }
+
+        public class User
+        {
+            public string Name { get; set; }
+
+            public int Age { get; set; }
+        }
+
+        public async Task SendOld(string product)
         {
             var connetionId = Context.ConnectionId; // уникальный идентификатор подключения в виде строки
             var connectionAborted = Context.ConnectionAborted; // возвращает объект CancellationToken, который извещает о закрытии подключения
@@ -19,7 +34,15 @@ namespace SignalRWeb.Hubs
             //Context.Abort() - принудительно завершает текущее подключение
             //Context.GetHttpContext() - возвращает объект HttpContext для текущего подключения или null, если подключение не ассоциировано с запросом HTTP.
 
-            await Clients.All.SendAsync("Receive", message, Context.ConnectionId);
+            //Client
+            await Clients.Caller.SendAsync("Notify", "Ваш товар добавлен");
+            await Clients.Others.SendAsync("Receive", $"Добавлено: {product} в {DateTime.Now.ToShortTimeString()}");
+
+            //То же самое, что и выше
+            await Clients.Client(Context.ConnectionId).SendAsync("Notify", "Ваш товар добавлен");
+            await Clients.AllExcept(new List<string> { Context.ConnectionId }).SendAsync("Receive", $"Добавлено: {product} в {DateTime.Now.ToShortTimeString()}");
+
+            //await Clients.All.SendAsync("Receive", message, Context.ConnectionId);
         }
 
         // срабатывает при подключении нового клиента

@@ -24,6 +24,7 @@ namespace SignalRWeb
                 {
                     opt.EnableDetailedErrors = true;
                 });
+            builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
             app.MapGet("/", () => "Hello World!");
@@ -42,6 +43,8 @@ namespace SignalRWeb
                     opt.LongPolling.PollTimeout = new System.TimeSpan(0, 1, 0); //настраивает транспорт LongPolling.
                     //opt.WebSockets.CloseTimeout настраивает транспорт WebSocket.
                 });
+                endpoints.MapHub<ChatHubVer2>("/chatVer2");
+                endpoints.MapDefaultControllerRoute();
             });
 
             app.Run();

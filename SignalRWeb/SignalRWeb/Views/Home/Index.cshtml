@@ -1,0 +1,39 @@
+﻿@{
+    Layout = null;
+}
+ 
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Главная</title>
+</head>
+<body>
+ 
+    <form action='@Url.Action("Create")' method="post">
+        <input type="text" name="product" />
+        <input type="submit" value="Отправить" />
+    </form>
+ 
+    <div id="notify"></div>
+ 
+    <script src="js/signalr/dist/browser/signalr.min.js"></script>
+    <script>
+        const hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatVer2")
+            .build();
+ 
+        // получение сообщения от сервера
+        hubConnection.on('Notify', function (message) {
+ 
+            // создает элемент <p> для сообщения пользователя
+            let elem = document.createElement("p");
+            elem.appendChild(document.createTextNode(message));
+ 
+            document.getElementById("notify").appendChild(elem);
+ 
+        });
+        hubConnection.start();
+    </script>
+</body>
+</html>
