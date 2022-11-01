@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>SignalR Chat</title>
+</head>
+<body>
+    <div id="inputForm">
+        <label>Имя</label><br />
+        <input type="text" id="name" /><br /><br />
+        <label>Возраст</label><br />
+        <input type="number" id="age" /><br /><br />
+        <input type="button" id="sendBtn" value="Отправить" />
+    </div>
+    <div><p id="response"></p></div>
+    <script src="https://unpkg.com/@microsoft/signalr@3.1.0/dist/browser/signalr.min.js"></script>
+    <script>
+        const hubConnection = new signalR.HubConnectionBuilder()
+            .withUrl("/chat")
+            .build();
+
+        // получение сообщения от сервера
+        hubConnection.on("Receive", function (user) {
+
+            document.getElementById("response").innerText = "Имя: " + user.name + " Возраст: " + user.age;
+        });
+
+        // отправка сообщения на сервер
+        document.getElementById("sendBtn").addEventListener("click", function (e) {
+            let name = document.getElementById("name").value;
+            let age = document.getElementById("age").value;
+
+            hubConnection.invoke("Send", { "name": name, "age": parseInt(age) });
+            document.getElementById("name").value = "";
+            document.getElementById("age").value = "";
+        });
+
+        hubConnection.start();
+    </script>
+</body>
+</html>
